@@ -98,7 +98,7 @@ class DataSet :
 
 if __name__ == '__main__' : 
 
-    DS = DataSet(size = 100, method='D', seed=42)
+    DS = DataSet(size = 100, method='C', seed=42)
     print(len(DS))
     DS.visualize()
     

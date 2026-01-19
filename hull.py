@@ -90,8 +90,30 @@ class OSHull :
         super().__init__(dataset)
         self.osWrap()
 
-    def medianIndex(self):
-        pass
+    def medianIndexaux(self,List, k):
+        if len(List)<=4:
+            List = List.sort()
+            return List[k]
+        n = len(List)
+        q = n//5
+        Lsepare = [[List[5*i+j] for j in range(5)] for i in range(q)]
+        for i in range(q):
+            Lsepare[i]=Lsepare[i].sort()
+        pivot = self.medianIndexaux([Lsepare[i][2] for i in range(q)],q//2)
+        Lpivot1 = []
+        Lpivot2 = []
+        for x in List :
+            if x <= pivot :
+                Lpivot1.append(x)
+            else :
+                Lpivot2.append(x)
+        if len(Lpivot1)>=k :
+            return self.medianIndexaux(Lpivot1,k)
+        else :
+            return self.medianIndexaux(Lpivot2,k-len(Lpivot1))
+
+    def medianIndex(List):
+        return List.medianIndexaux(len(List)//2)
 
     def osWrap(self):
         pass
