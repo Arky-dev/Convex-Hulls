@@ -1,6 +1,6 @@
 import random as rd
 
-def medianIndexAux(List, k): #fonction qui trouve le k-ème plus petit élément dans une liste
+def medianAux(List, k): #fonction qui trouve le k-ème plus petit élément dans une liste
     if len(List)<=4:
         List.sort()
         return List[k-1]
@@ -9,7 +9,7 @@ def medianIndexAux(List, k): #fonction qui trouve le k-ème plus petit élément
     Lsepare = [[List[5*i+j] for j in range(5)] for i in range(q)]
     for i in range(q):
         Lsepare[i].sort()
-    pivot = medianIndexAux([Lsepare[i][2] for i in range(q)],q//2)
+    pivot = medianAux([Lsepare[i][2] for i in range(q)],q//2)
     Lpivot1 = []
     Lpivot2 = []
     for x in List :
@@ -18,16 +18,13 @@ def medianIndexAux(List, k): #fonction qui trouve le k-ème plus petit élément
         else :
             Lpivot2.append(x)
     if len(Lpivot1)>=k :
-        return medianIndexAux(Lpivot1,k)
+        return medianAux(Lpivot1,k)
     else :
-        return medianIndexAux(Lpivot2,k-len(Lpivot1))
+        return medianAux(Lpivot2,k-len(Lpivot1))
 
-def medianIndex(List):
-    return medianIndexAux(List,len(List)//2)
+def median(List):
+    return medianAux(List,len(List)//2)
 
-
-if __name__ == '__main__' : 
-    print(medianIndex([1,9,4,6,2,3,5,8,7,10,11,15,14,13,12,16]))
 
 def oneSide(List,x):
     n = len(List)
@@ -45,7 +42,6 @@ def oneSide(List,x):
     for k in range(n):
         if k!=i and k!=j:
             ordre.append(k)
-    print(ordre)
     rd.shuffle(ordre) #on tire l'ordre dans lequel on va ajouter nos points.
     baseg = List[i]
     based = List[j]
@@ -55,31 +51,55 @@ def oneSide(List,x):
                 based = List[k]
             else :
                 baseg = List[k]
+    sens = True
+    if sens == True :
+        Reponse.append((baseg,based))
+    else :
+        Reponse.append(([baseg[0],-baseg[1]],[based[0],-based[1]]))
     return (baseg,based)
     
-Reponse = []
+
 
 def upperhull(List): 
     n = len(List)
     if n <= 1 :
         return 
-    index = medianIndex([List[k][0] for k in range(n)])
-    indexbis = medianIndexAux([List[k][0] for k in range(n)],len(List)//2+1)
-    x = (List[index][0]+List[indexbis][0])/2 #on s'assure de trouver un x différent des x_i
+    if n == 2:
+        sens = True
+        if sens == True :
+            Reponse.append((List[0],List[1]))
+        else :
+            Reponse.append(([List[0][0],-List[0][1]],[List[1][0],-List[1][1]]))
+        return
+    med = median([List[k][0] for k in range(n)])
+    medbis = medianAux([List[k][0] for k in range(n)],len(List)//2+1)
+    x = (med+medbis)/2 #on s'assure de trouver un x différent des x_i
     baseg,based = oneSide(List,x)
-    Reponse.append((baseg,based))
     Listg = []
     Listd = []
     for y in List:
-        if y[0]<baseg[0]:
+        if y[0]<=baseg[0]:
             Listg.append(y)
-        else : 
+        if y[0]>=based[0]: 
             Listd.append(y)
     upperhull(Listg)
     upperhull(Listd)
     return 
 
-if __name__ == '__main__' : 
-    print(upperhull([[1,0],[0,1]]))
-    print(Reponse)
+def hull(List):
+    sens = True
+    print(sens)
+    upperhull(List)
+    for i in range(len(List)):
+        List[i][1] = -List[i][1]
+    #sens = False
+    #print(sens)
+    #upperhull(List)
+    return Reponse
 
+Reponse = []
+sens = True
+
+if __name__ == '__main__' : 
+    hull([[1,0],[0,1],[0.3,0.9],[0.9,0.8],[0.5,0.51]])
+    print(Reponse)
