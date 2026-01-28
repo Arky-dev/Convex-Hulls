@@ -51,8 +51,7 @@ def oneSide(List,x):
                 based = List[k]
             else :
                 baseg = List[k]
-    sens = True
-    if sens == True :
+    if sensup :
         Reponse.append((baseg,based))
     else :
         Reponse.append(([baseg[0],-baseg[1]],[based[0],-based[1]]))
@@ -65,8 +64,7 @@ def upperhull(List):
     if n <= 1 :
         return 
     if n == 2:
-        sens = True
-        if sens == True :
+        if sensup :
             Reponse.append((List[0],List[1]))
         else :
             Reponse.append(([List[0][0],-List[0][1]],[List[1][0],-List[1][1]]))
@@ -87,19 +85,18 @@ def upperhull(List):
     return 
 
 def hull(List):
-    sens = True
-    print(sens)
+    sensup = True
     upperhull(List)
-    for i in range(len(List)):
-        List[i][1] = -List[i][1]
-    #sens = False
-    #print(sens)
-    #upperhull(List)
+    Listcopie = List.copy()
+    for i in range(len(Listcopie)):
+       Listcopie[i][1] = -Listcopie[i][1]
+    sensup = False
+    upperhull(Listcopie)
     return Reponse
 
 Reponse = []
-sens = True
+sensup = True
 
 if __name__ == '__main__' : 
-    hull([[1,0],[0,1],[0.3,0.9],[0.9,0.8],[0.5,0.51]])
+    hull([[1,0],[0,1],[0.3,0.9],[0.9,0.6],[0.5,0.51]])
     print(Reponse)
