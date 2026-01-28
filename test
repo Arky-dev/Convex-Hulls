@@ -1,4 +1,5 @@
 import random as rd
+import copy
 
 def medianAux(List, k): #fonction qui trouve le k-ème plus petit élément dans une liste
     if len(List)<=4:
@@ -27,6 +28,7 @@ def median(List):
 
 
 def oneSide(List,x):
+    global upper
     n = len(List)
     if List[0][0] < x: #on trouve deux indices i et j tels que x_i < x < x_j
         i = 0
@@ -51,7 +53,7 @@ def oneSide(List,x):
                 based = List[k]
             else :
                 baseg = List[k]
-    if sensup :
+    if upper :
         Reponse.append((baseg,based))
     else :
         Reponse.append(([baseg[0],-baseg[1]],[based[0],-based[1]]))
@@ -60,11 +62,12 @@ def oneSide(List,x):
 
 
 def upperhull(List): 
+    global upper
     n = len(List)
     if n <= 1 :
         return 
     if n == 2:
-        if sensup :
+        if upper :
             Reponse.append((List[0],List[1]))
         else :
             Reponse.append(([List[0][0],-List[0][1]],[List[1][0],-List[1][1]]))
@@ -85,18 +88,19 @@ def upperhull(List):
     return 
 
 def hull(List):
-    sensup = True
+    global upper
+    upper = True
     upperhull(List)
-    Listcopie = List.copy()
+    Listcopie = copy.deepcopy(List)
     for i in range(len(Listcopie)):
        Listcopie[i][1] = -Listcopie[i][1]
-    sensup = False
+    upper = False
     upperhull(Listcopie)
     return Reponse
 
 Reponse = []
-sensup = True
+upper = True
 
 if __name__ == '__main__' : 
-    hull([[1,0],[0,1],[0.3,0.9],[0.9,0.6],[0.5,0.51]])
+    hull([[1,0],[0,1],[0.3,0.9],[0.9,0.6],[0.5,0.49]])
     print(Reponse)
