@@ -26,7 +26,14 @@ def medianAux(List, k): #fonction qui trouve le k-ème plus petit élément dans
 def median(List):
     return medianAux(List,len(List)//2)
 
+        # n = len(List)
+        
+        # left_points = [p for p in List if p[0] < x]
+        # right_points = [p for p in List if p[0] > x]
+        # baseg = max(left_points, key=lambda p: p[1])
+        # based = max(right_points, key=lambda p: p[1])
 
+ if List[k][2] != baseg[2] and List[k][2] != based[2]
 def oneSide(List,x):
     global upper
     n = len(List)

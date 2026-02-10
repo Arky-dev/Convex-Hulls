@@ -112,22 +112,28 @@ class OSHull(Hull) :
 
     def oneSide(self, List, x):
         n = len(List)
-        
         left_points = [p for p in List if p[0] < x]
         right_points = [p for p in List if p[0] > x]
-        
         baseg = max(left_points, key=lambda p: p[1])
         based = max(right_points, key=lambda p: p[1])
-
-        ordre = [k for k in range(n) if List[k][2] != baseg[2] and List[k][2] != based[2]]
+        
+        ordre = [k for k in range(n)]
         rd.shuffle(ordre) #on tire l'ordre dans lequel on va ajouter nos points.
 
-        for k in ordre:
-            if List[k][1] > (based[1]-baseg[1])/(based[0]-baseg[0])*(List[k][0]-baseg[0])+baseg[1]:
-                if List[k][0] > x:
-                    based = List[k]
+        for  k in range(n):
+            if List[ordre[k]][1] > (based[1]-baseg[1])/(based[0]-baseg[0])*(List[ordre[k]][0]-baseg[0])+baseg[1]:
+                if List[ordre[k]][0] > x:
+                    based = List[ordre[k]]
+                    for l in range(k-1):
+                        if List[ordre[l]][0]<x:
+                            if List[ordre[l]][1] > (based[1]-baseg[1])/(based[0]-baseg[0])*(List[ordre[l]][0]-baseg[0])+baseg[1]:
+                                baseg=List[ordre[l]]
                 else :
-                    baseg = List[k]
+                    baseg = List[ordre[k]]
+                    for l in range(k-1):
+                        if List[ordre[l]][0]>x:
+                            if List[ordre[l]][1] > (based[1]-baseg[1])/(based[0]-baseg[0])*(List[ordre[l]][0]-baseg[0])+baseg[1]:
+                                based=List[ordre[l]]
         return (baseg,based)
 
 
@@ -148,10 +154,8 @@ class OSHull(Hull) :
         baseg, based = self.oneSide(List,x)
         Listg = [y for y in List if y[0] < baseg[0]]
         Listg.append(baseg)
-        
         Listd = [y for y in List if y[0] > based[0]]
         Listd.insert(0, based)
-
         return self.upperhull(Listg)+self.upperhull(Listd)
 
 
@@ -170,7 +174,6 @@ class OSHull(Hull) :
 
 
 if __name__ == '__main__' :
-    dataset = DataSet(size=101, method='B', seed=40)
+    dataset = DataSet(size=101, method='A', seed=42)
     hull = OSHull(dataset)
-
     hull.visualize()
