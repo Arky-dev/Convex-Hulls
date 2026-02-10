@@ -1,13 +1,13 @@
 from datasets import DataSet
 import matplotlib.pyplot as plt
 import random as rd
+import copy
 
 class Hull :
 
     def __init__(self, dataset):
         self.dataset = dataset
         self.hull = []
-
 
     def orient(self,i,j,k):
         x1, y1 = self.dataset.x_list[i], self.dataset.y_list[i]
@@ -21,7 +21,6 @@ class Hull :
             return -1
         return 0
     
-
     def visualize(self):
         hull = self.hull
         hull.append(hull[0])
@@ -84,32 +83,45 @@ class GiftWrappingHull(Hull) :
 
 
 
-class OSHull :
+class OSHull(Hull) :
 
     def __init__(self, dataset):
         super().__init__(dataset)
         self.osWrap()
 
-
-    def oneSide(List,x):
+    def medianAux(self, List, k): #fonction qui trouve le k-ème plus petit élément dans une liste
+        if len(List)<=4:
+            List.sort()
+            return List[k-1]
         n = len(List)
-        if List[0][0] < x: #on trouve deux indices i et j tels que x_i < x < x_j
-            i = 0
-            j = 1
-            while j < n and List[j][0] < x : #par hypothèse sur x, on trouvera forcément j vérifiant x < x_j
-                j+=1
-        if List[0][0] > x:
-            j = 0
-            i = 1
-            while i < n and List[i][0] > x :
-                i+=1
-        ordre = []
-        for k in range(n):
-            if k!=i and k!=j:
-                ordre.append(k)
-        ordre = rd.shuffle(ordre) #on tire l'ordre dans lequel on va ajouter nos points.
-        baseg = List[i]
-        based = List[j]
+        q = n//5
+        Lsepare = [[List[5*i+j] for j in range(5)] for i in range(q)]
+        for i in range(q):
+            Lsepare[i].sort()
+        pivot = self.medianAux([Lsepare[i][2] for i in range(q)],q//2)
+        Lpivot1 = [x for x in List if x<=pivot]
+        Lpivot2 = [x for x in List if x>pivot]
+        
+        if len(Lpivot1)>=k :
+            return self.medianAux(Lpivot1,k)
+        else :
+            return self.medianAux(Lpivot2,k-len(Lpivot1))
+
+    def median(self, List):
+        return self.medianAux(List,len(List)//2)
+
+    def oneSide(self, List, x):
+        n = len(List)
+        
+        left_points = [p for p in List if p[0] < x]
+        right_points = [p for p in List if p[0] > x]
+        
+        baseg = max(left_points, key=lambda p: p[1])
+        based = max(right_points, key=lambda p: p[1])
+
+        ordre = [k for k in range(n) if List[k][2] != baseg[2] and List[k][2] != based[2]]
+        rd.shuffle(ordre) #on tire l'ordre dans lequel on va ajouter nos points.
+
         for k in ordre:
             if List[k][1] > (based[1]-baseg[1])/(based[0]-baseg[0])*(List[k][0]-baseg[0])+baseg[1]:
                 if List[k][0] > x:
@@ -117,37 +129,48 @@ class OSHull :
                 else :
                     baseg = List[k]
         return (baseg,based)
-    
-    Reponse = []
 
-    def upperhull(List): 
+
+    def upperhull(self, List): 
         n = len(List)
-        if n <= 1 :
-            break
-        index = medianIndex([List[k][0] for k in range(n)])
-        indexbis = medianIndexAux([List[k][0],len(List)//2+1])
-        x = (List[index][0]+List[indexbis][0])/2 #on s'assure de trouver un x différent des x_i
-        baseg,based = oneSide(List,x)
-        Reponse.append((baseg,based))
-        Listg = []
-        Listd = []
-        for y in List:
-            if y[0]<baseg[0]:
-                Listg.append(y)
-            else : 
-                Listd.append(y)
-        upperhull(Listg)
-        upperhull(Listd)
-        break
+        if n == 0:
+            return []
+        if n == 1 :
+            return [List[0][2]]
+        if n == 2:
+            if List[0][0] < List[1][0]:
+                return [List[0][2], List[1][2]]
+            else:
+                return [List[1][2], List[0][2]]
+        med = self.median([List[k][0] for k in range(n)])
+        medbis = self.medianAux([List[k][0] for k in range(n)],len(List)//2+1)
+        x = (med+medbis)/2 #on s'assure de trouver un x différent des x_i
+        baseg, based = self.oneSide(List,x)
+        Listg = [y for y in List if y[0] < baseg[0]]
+        Listg.append(baseg)
+        
+        Listd = [y for y in List if y[0] > based[0]]
+        Listd.insert(0, based)
+
+        return self.upperhull(Listg)+self.upperhull(Listd)
 
 
     def osWrap(self):
-        pass
+        self.upper = True
+        indexed_data = [(p[0], p[1], i) for i, p in enumerate(self.dataset.dataset)]
+        upper_indexes = self.upperhull(indexed_data)
 
-    
+        Listcopie = [(p[0], -p[1], p[2]) for p in indexed_data]
+        self.upper = False
+        lower_indexes = self.upperhull(Listcopie)
+
+        self.hull = upper_indexes + lower_indexes[::-1][1:-1]
+        print(self.hull)
+        return
+
 
 if __name__ == '__main__' :
-    dataset = DataSet(size=101, method='A', seed=42)
-    hull = SweepingHull(dataset)
+    dataset = DataSet(size=101, method='B', seed=40)
+    hull = OSHull(dataset)
 
     hull.visualize()
