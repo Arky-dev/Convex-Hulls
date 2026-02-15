@@ -15,7 +15,7 @@ def main():
 
     # --- DATASET B: Uniform Square ---
     print("--- 2. DATASET B: Uniform Square Distribution ---")
-    print("Algorithm: Output Sensitive (Marriage-before-Conquest)")
+    print("Algorithm: Output Sensitive ")
     ds_b = DataSet(size=200, method='B', seed=42)
     ds_b.visualize()
     OSHull(ds_b).visualize()
@@ -28,7 +28,7 @@ def main():
     SweepingHull(ds_c).visualize()
 
     # --- DATASET D: Circle Boundary ---
-    print("--- 4. DATASET D: Circle Boundary (Worst Case) ---")
+    print("--- 4. DATASET D: Circle Boundary ---")
     print("Algorithm: Gift Wrapping")
     ds_d = DataSet(size=30, method='D', seed=1)
     ds_d.visualize()
