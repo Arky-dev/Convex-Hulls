@@ -1,7 +1,6 @@
 from datasets import DataSet
 import matplotlib.pyplot as plt
 import random as rd
-import copy
 
 class Hull :
 
@@ -22,10 +21,8 @@ class Hull :
         return 0
     
     def visualize(self):
-        hull = self.hull
+        hull = list(self.hull)
         hull.append(hull[0])
-
-        print(hull)
 
         plt.figure(figsize=(6, 6))
         plt.scatter(self.dataset.x_list, self.dataset.y_list, s=10, alpha=0.6)
@@ -75,11 +72,39 @@ class SweepingHull(Hull) :
 
 
 
-class GiftWrappingHull(Hull) :
+class GiftWrappingHull(Hull):
 
     def __init__(self, dataset):
         super().__init__(dataset)
         self.giftWrap()
+
+    def giftWrap(self):
+        n = self.dataset.size
+        if n < 3:
+            self.hull = list(range(n))
+            return
+
+        # We search for the point with the minimum x-coordinate
+        start_node = 0
+        for i in range(1, n):
+            if self.dataset.x_list[i] < self.dataset.x_list[start_node]:
+                start_node = i
+            elif self.dataset.x_list[i] == self.dataset.x_list[start_node]:
+                if self.dataset.y_list[i] < self.dataset.y_list[start_node]:
+                    start_node = i
+
+        p = start_node
+        while True:
+            self.hull.append(p)
+            q = (p + 1) % n
+            
+            for i in range(n):
+                if self.orient(p, i, q) == 1:
+                    q = i
+            
+            p = q
+            if p == start_node:
+                break
 
 
 
@@ -148,14 +173,17 @@ class OSHull(Hull) :
                 return [List[0][2], List[1][2]]
             else:
                 return [List[1][2], List[0][2]]
-        med = self.median([List[k][0] for k in range(n)])
-        medbis = self.medianAux([List[k][0] for k in range(n)],len(List)//2+1)
+        med = self.median([p[0] for p in List])
+        medbis = self.medianAux([p[0] for p in List],len(List)//2+1)
         x = (med+medbis)/2 #on s'assure de trouver un x différent des x_i
         baseg, based = self.oneSide(List,x)
+
         Listg = [y for y in List if y[0] < baseg[0]]
         Listg.append(baseg)
+
         Listd = [y for y in List if y[0] > based[0]]
         Listd.insert(0, based)
+
         return self.upperhull(Listg)+self.upperhull(Listd)
 
 
@@ -168,12 +196,20 @@ class OSHull(Hull) :
         self.upper = False
         lower_indexes = self.upperhull(Listcopie)
 
-        self.hull = upper_indexes + lower_indexes[::-1][1:-1]
-        print(self.hull)
+        hull = list(upper_indexes)
+        lower_rev = lower_indexes[::-1]
+        
+        if lower_rev and hull and lower_rev[0] == hull[-1]:
+            lower_rev.pop(0)
+            
+        if lower_rev and hull and lower_rev[-1] == hull[0]:
+            lower_rev.pop()
+            
+        self.hull = hull + lower_rev
         return
 
 
 if __name__ == '__main__' :
-    dataset = DataSet(size=101, method='A', seed=42)
+    dataset = DataSet(size=5, method='list', seed=-1, list=[(0.2,0.2), (0.8,0.2), (0.8,0.8), (0.2,0.8), (0.5, 0.5)])
     hull = OSHull(dataset)
     hull.visualize()
