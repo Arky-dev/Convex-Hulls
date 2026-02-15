@@ -42,13 +42,6 @@ python tests.py
 
 *Note: You must close the plot window to proceed to the next example.*
 
-### 2. Unit Tests
-To verify that the algorithms are working correctly:
-
-```bash
-python tests.py
-```
-
 ### 3. Complexity Benchmark
 
 To generate the time complexity graph (Time vs. Number of Points):
